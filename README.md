@@ -10,6 +10,10 @@ A cinematic **Glassmorphism** single-page application for an immersive, ad-free 
 ## 🧪 Technical Logic
 The application identifies video IDs using this pattern:
 ```javascript
+
+const regex = /(?:youtube\.com\
+
+
 // Source - https://stackoverflow.com/q/6903823
 
 // Posted by Stanley, modified by community. See post 'Timeline' for change history
