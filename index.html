@@ -3,184 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music-D | Secure Access</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&display=swap" rel="stylesheet">
+    <title>Minimalist YouTube Viewer</title>
     <style>
         :root {
-            --primary: #ff3e3e;
-            --glass: rgba(255, 255, 255, 0.08);
-            --border: rgba(255, 255, 255, 0.15);
-            --text: #ffffff;
+            --bg-color: #0f0f0f;
+            --text-color: #ffffff;
+            --accent-color: #ff0000;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #0a0a0c;
-            color: var(--text);
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            margin: 0;
+            padding: 20px;
         }
-
-        /* Ambient Background */
-        .bg-blur {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; filter: blur(80px); opacity: 0.6;
-        }
-        .blob {
-            position: absolute;
-            width: 500px; height: 500px;
-            border-radius: 50%;
-            animation: move 20s infinite alternate;
-        }
-        .blob-1 { background: #4f46e5; top: -10%; left: -10%; }
-        .blob-2 { background: #db2777; bottom: -10%; right: -10%; animation-delay: -5s; }
-
-        @keyframes move {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(100px, 50px) scale(1.2); }
-        }
-
-        /* Login Overlay */
-        #loginOverlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(15px);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease;
-        }
-
-        .login-card {
-            background: var(--glass);
-            padding: 40px;
-            border-radius: 32px;
-            border: 1px solid var(--border);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: white;
-            outline: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            margin-top: 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover { transform: scale(1.02); opacity: 0.9; }
-
-        /* Main Player Container (Hidden initially) */
         .container {
-            display: none;
-            width: 95%;
-            max-width: 1100px;
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            border: 1px solid var(--border);
-            border-radius: 32px;
-            padding: 30px;
-            animation: fadeIn 0.8s ease-out;
+            width: 100%;
+            max-width: 900px;
         }
-
-        .video-box {
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        input {
+            flex-grow: 1;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background: #1e1e1e;
+            color: white;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #video-wrapper {
             position: relative;
-            padding-bottom: 56.25%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
             height: 0;
-            border-radius: 20px;
             overflow: hidden;
+            border-radius: 12px;
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        .video-box iframe {
+        #video-wrapper iframe {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .instructions {
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 0.9em;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-blur">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-    </div>
-
-    <div id="loginOverlay">
-        <div class="login-card">
-            <h2 style="margin-bottom: 20px;">Music-D Login</h2>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Access Key">
-            <button onclick="handleLogin()">Enter Ad-Free Zone</button>
+    <div class="container">
+        <h2 style="text-align: center;">Zen Player</h2>
+        <div class="search-box">
+            <input type="text" id="videoUrl" placeholder="Paste YouTube URL or Video ID here...">
+            <button onclick="loadVideo()">Load Video</button>
         </div>
-    </div>
 
-    <main class="container" id="mainContent">
-        <header style="margin-bottom: 20px;">
-            <span style="background:var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800;">SECURE STREAM</span>
-            <h1 id="welcomeText" style="margin-top: 10px;">Welcome to Music-D</h1>
-        </header>
-
-        <div class="video-box">
-            <iframe 
-                id="ytPlayer"
-                src="" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-            </iframe>
+        <div id="video-wrapper">
+            <div id="player"></div>
         </div>
-    </main>
+
+        <p class="instructions">Paste a link like <code>https://www.youtube.com/watch?v=dQw4w9WgXcQ</code> to begin.</p>
+    </div>
 
     <script>
-        function handleLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+        function loadVideo() {
+            const urlInput = document.getElementById('videoUrl').value;
+            let videoId = '';
 
-            if(user && pass) {
-                // Hide Login
-                document.getElementById('loginOverlay').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loginOverlay').style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'block';
-                    
-                    // Set the Player Source with specialized parameters
-                    // Note: Use the /embed/ format to strip site UI
-                    const videoId = "K8fBH3D8S-A"; 
-                    document.getElementById('ytPlayer').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0`;
-                    document.getElementById('welcomeText').innerText = `Enjoy the Vibe, ${user}`;
-                }, 500);
+            // Extract ID from various URL formats
+            if (urlInput.includes('v=')) {
+                videoId = urlInput.split('v=')[1].split('&')[0];
+            } else if (urlInput.includes('be/')) {
+                videoId = urlInput.split('be/')[1];
             } else {
-                alert("Please enter login details to proceed.");
+                videoId = urlInput; // Assume it's just the ID
+            }
+
+            if (videoId) {
+                const playerWrapper = document.getElementById('video-wrapper');
+                playerWrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            } else {
+                alert("Please enter a valid YouTube URL.");
             }
         }
     </script>
